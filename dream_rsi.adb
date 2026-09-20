@@ -21,7 +21,7 @@ package body Dream_RSI is
       ID     : out Valid_Node_Index)
    is
    begin
-      if Tree.Count >= Max_Tree_Nodes then
+      if Tree.Count = Max_Tree_Nodes then
          raise Tree_Full_Error;
       end if;
       if Parent > Node_Index (Tree.Count) then
@@ -55,7 +55,7 @@ package body Dream_RSI is
    end Is_Valid_Tree;
 
    function Construct_Replay_Simulator (History : Discovery_Tree) return Discovery_Tree is
-      Simulator : Discovery_Tree := (Count => 0, Nodes => (others => (Parent => Null_Index, State => Unexplored, Score => 0.0, Cost => 0.0)));
+      Simulator : Discovery_Tree := (Count => 0, Nodes => [others => (Parent => Null_Index, State => Unexplored, Score => 0.0, Cost => 0.0)]);
    begin
       if History.Count = 0 then
          raise Tree_Empty_Error;
@@ -68,7 +68,7 @@ package body Dream_RSI is
             Simulator.Nodes (Valid_Node_Index (Simulator.Count)) := History.Nodes (Valid_Node_Index (I));
          end if;
       end loop;
-      
+
       -- A tree could have >0 nodes, but all Unexplored. If so, Simulator is essentially empty.
       return Simulator;
    end Construct_Replay_Simulator;
@@ -88,8 +88,8 @@ package body Dream_RSI is
          declare
             Node    : constant Discovery_Node := Simulator.Nodes (Valid_Node_Index (I));
             Base    : constant Float := Float (Node.Score);
-            
-            -- Theoretical optimal exploration weight is 0.5. 
+
+            -- Theoretical optimal exploration weight is 0.5.
             -- This simulates outcome evaluation: policies drifting from the optimum incur penalties.
             Penalty : constant Float := abs (Policy.Exploration_Weight - 0.5) * 10.0;
          begin
@@ -149,10 +149,10 @@ package body Dream_RSI is
       if Simulator.Count = 0 then
          return 0.0;
       end if;
-      
+
       -- Core RSI loop: Dream inside the simulator to improve exploration policy dynamically
       Best_Policy := Improve_Policy (Simulator);
-      
+
       -- Redeploy improved online policy (budget scaling simulates parallel rollout capability)
       return Evaluate_Policy (Simulator, Best_Policy) * Score_Value (Budget);
    end Dream_RSI_Exploration;
