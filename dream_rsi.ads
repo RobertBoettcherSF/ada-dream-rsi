@@ -21,7 +21,7 @@ package Dream_RSI is
    type Node_Array is array (Valid_Node_Index) of Discovery_Node;
 
    type Discovery_Tree is record
-      Nodes : Node_Array := (others => (Parent => Null_Index, State => Unexplored, Score => 0.0, Cost => 0.0));
+      Nodes : Node_Array := [others => (Parent => Null_Index, State => Unexplored, Score => 0.0, Cost => 0.0)];
       Count : Valid_Node_Count := 0;
    end record;
 
